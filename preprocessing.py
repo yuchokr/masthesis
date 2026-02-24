@@ -7,8 +7,6 @@ sdata = read_zarr(zarr_path)
 img_layer = list(sdata.images.keys())[0]
 print("Input image layer:", img_layer)
 
-z_vis = 3.5
-
 # min-max filtering
 sdata = sp.im.min_max_filtering(
     sdata=sdata,
@@ -28,13 +26,15 @@ sdata = sp.im.enhance_contrast(
     overwrite=True,
 )
 
-# quick check plot (3 layers in one figure)
-sp.pl.plot_shapes(
-    sdata,
-    img_layer=[img_layer, "min_max_filtered", "clahe"],
-    shapes_layer=None,
-    z_slice=z_vis,
-    channel="DAPI",
-    figsize=(18, 6),
-    img_title=True,
-)
+# plot all z layers (one figure per z)
+z_values = [float(z) for z in sdata.images[img_layer].coords["z"].values]
+for z_vis in z_values:
+    sp.pl.plot_shapes(
+        sdata,
+        img_layer=[img_layer, "min_max_filtered", "clahe"],
+        shapes_layer=None,
+        z_slice=z_vis,
+        channel="DAPI",
+        figsize=(18, 6),
+        img_title=True,
+    )
